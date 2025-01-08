@@ -7,32 +7,32 @@ import { Model } from './types'
 /**
  * Custom select component for handling related make and model fields
  * @param data - Map of make names to their associated models
- * @param primaryPath - Path to the make field in the form
- * @param secondaryPath - Path to the model field in the form
+ * @param makePath - Path to the make field in the form
+ * @param modelPath - Path to the model field in the form
  * @param path - Path to the current field in the form
  */
 export const CustomSelect = ({
   data,
-  primaryPath,
-  secondaryPath,
+  makePath,
+  modelPath,
   path,
 }: {
   data: Map<string, Model[]>
-  primaryPath: string
-  secondaryPath: string
+  makePath: string
+  modelPath: string
   path: string
 }) => {
   const { setValue, value } = useField<string>({ path })
-  const [primaryValue, setPrimaryValue] = useState<any>(null)
-  const [secondaryValue, setSecondaryValue] = useState<any>(null)
-  const [secondaryOptions, setSecondaryOptions] = useState<Option<number>[]>([])
-  const [primaryOptions, setPrimaryOptions] = useState<Option<number>[]>([])
+  const [selectedMake, setSelectedMake] = useState<any>(null)
+  const [selectedModel, setSelectedModel] = useState<any>(null)
+  const [modelOptions, setModelOptions] = useState<Option<number>[]>([])
+  const [makeOptions, setMakeOptions] = useState<Option<number>[]>([])
 
-  // get the docment fields with the selected make and model
-  const makeField = useField<number>({ path: primaryPath })
-  const modelField = useField<number>({ path: secondaryPath })
+  // get the make and model fields from the form
+  const makeField = useField<number>({ path: makePath })
+  const modelField = useField<number>({ path: modelPath })
 
-  // Set primary options on initial load
+  // Set make options on initial load
   useEffect(() => {
     const options = Array.from(data.keys()).map((makeName) => {
       const models = data.get(makeName) || []
@@ -41,13 +41,13 @@ export const CustomSelect = ({
         value: models[0].make.id, // Get the make ID from any model in the group
       }
     })
-    setPrimaryOptions(options)
+    setMakeOptions(options)
 
     // set the selected values from the field values when the component is mounted
     const makeId = makeField.value
     if (makeId) {
       const selectedMake = options.find((opt) => opt.value === makeId)
-      setPrimaryValue(selectedMake || null)
+      setSelectedMake(selectedMake || null)
 
       // If we have a make selected, set up the secondary options
       if (selectedMake) {
@@ -56,62 +56,62 @@ export const CustomSelect = ({
           value: model.id,
           label: model.name,
         }))
-        setSecondaryOptions(modelOptions)
+        setModelOptions(modelOptions)
         handlePrimaryChange(selectedMake)
 
         // Set the secondary value if we have a model ID
         const modelId = modelField.value
         if (modelId) {
           const selectedModel = modelOptions.find((opt) => opt.value === modelId)
-          setSecondaryValue(selectedModel || null)
+          setSelectedModel(selectedModel || null)
           handleSecondaryChange(selectedModel!)
         }
       }
     }
   }, [data])
 
-  // Update secondary options when primary selection changes
+  // Update model options when make selection changes
   useEffect(() => {
-    if (!primaryValue) {
-      setSecondaryOptions([])
-      setSecondaryValue(null)
+    if (!selectedMake) {
+      setModelOptions([])
+      setSelectedModel(null)
       return
     }
 
-    const models = data.get(primaryValue?.label) || []
+    const models = data.get(selectedMake?.label) || []
     const options = models.map((model) => ({
       value: model.id,
       label: model.name,
     }))
-    setSecondaryOptions(options)
-    setSecondaryValue(null)
-  }, [primaryValue, data])
+    setModelOptions(options)
+    setSelectedModel(null)
+  }, [selectedMake, data])
 
   /**
-   * Handles changes to the primary (make) select
+   * Handles changes to the make select
    * @param option - Selected make option or null if cleared
    */
   const handlePrimaryChange = (option: Option<unknown> | Option<unknown>[]) => {
     if (Array.isArray(option)) return
-    setPrimaryValue(option || null)
+    setSelectedMake(option || null)
     // When a selection changes:
     makeField.setValue(option?.value)
     modelField.setValue(null)
-    setSecondaryValue(null)
+    setSelectedModel(null)
   }
 
   /**
-   * Handles changes to the secondary (model) select
+   * Handles changes to the model select
    * @param option - Selected model option or null if cleared
    */
   const handleSecondaryChange = (option: Option<unknown> | Option<unknown>[]) => {
     if (Array.isArray(option)) return
     setTimeout(() => {
-      setSecondaryValue(option)
+      setSelectedModel(option)
     }, 10)
 
     // When a selection changes:
-    makeField.setValue(primaryValue?.value)
+    makeField.setValue(selectedMake?.value)
     modelField.setValue(option?.value)
   }
 
@@ -127,19 +127,19 @@ export const CustomSelect = ({
       <div style={{ flex: 1 }}>
         {/* MAKE */}
         <Select
-          options={primaryOptions}
+          options={makeOptions}
           onChange={handlePrimaryChange}
-          value={primaryValue}
+          value={selectedMake}
           isClearable
         />
       </div>
       <div style={{ flex: 1 }}>
         {/* MODEL */}
         <Select
-          key={secondaryValue || 'empty'}
-          options={secondaryOptions}
+          key={selectedModel || 'empty'}
+          options={modelOptions}
           onChange={handleSecondaryChange}
-          value={secondaryValue}
+          value={selectedModel}
           isClearable
         />
       </div>

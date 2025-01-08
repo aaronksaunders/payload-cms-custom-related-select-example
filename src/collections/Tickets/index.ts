@@ -30,10 +30,8 @@ const Tickets: CollectionConfig = {
           Field: {
             path: 'src/collections/Tickets/related-custom-component',
             serverProps: {
-              primarySelect: 'makes',
-              secondarySelect: 'models',
-              primaryPath: 'make',
-              secondaryPath: 'model',
+              makePath: 'make',
+              modelPath: 'model',
             },
           },
         },

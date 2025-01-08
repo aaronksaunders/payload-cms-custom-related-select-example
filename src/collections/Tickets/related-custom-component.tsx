@@ -5,17 +5,17 @@ import { Model } from './types'
 
 /**
  * Server component for handling related make and model selection
- * @param props - Payload UI field server props
+ * @param props - Payload UI field server props including makePath and modelPath
  */
 const RelatedCustomComponent: UIFieldServerComponent = async (props: UIFieldServerProps) => {
   const { path } = props
 
   /**
-   * Fetches models with a depth of 2 to get make and model information
-   * @returns Map of make names to arrays of associated models
+   * Fetches models with their associated make information
+   * @returns Map of make names to their associated models
    */
   const info = await props.payload.find({
-    collection: (props as any)?.secondarySelect,
+    collection: 'models',
     depth: 2,
   })
 
@@ -35,7 +35,7 @@ const RelatedCustomComponent: UIFieldServerComponent = async (props: UIFieldServ
     return modelsByMake
   }
 
-  const modelsByMake = await getAllModelsByMake(info.docs)
+  const modelsByMake = await getAllModelsByMake(info.docs as Model[])
   console.log('modelsByMake', modelsByMake)
 
   return (
@@ -52,8 +52,8 @@ const RelatedCustomComponent: UIFieldServerComponent = async (props: UIFieldServ
       <CustomSelect
         path={path}
         data={modelsByMake}
-        primaryPath={(props as any)?.primaryPath}
-        secondaryPath={(props as any)?.secondaryPath}
+        makePath={(props as any)?.makePath}
+        modelPath={(props as any)?.modelPath}
       />
     </div>
   )
