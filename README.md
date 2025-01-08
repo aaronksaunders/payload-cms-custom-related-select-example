@@ -1,8 +1,8 @@
-# blank
+# Payload CMS Example of Custom Related Select Component
 
 blank
 
 ## Attributes
 
-- **Database**: mongodb
+- **Database**: Postgres
 - **Storage Adapter**: localDisk
