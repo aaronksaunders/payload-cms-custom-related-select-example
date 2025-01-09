@@ -1,6 +1,7 @@
 # Payload CMS Example of Custom Related Select Component
 
-blank
+## VIDEO
+- https://youtu.be/yJFbOzPD0oA
 
 ## Attributes
 
